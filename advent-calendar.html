@@ -1,0 +1,2186 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="dark">
+<title>Адвент-календарь · декабрь 2026</title>
+<meta name="description" content="Тридцать один подарок в заснеженном зимнем лесу. Интерактивный адвент-календарь на декабрь 2026.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='88'%3E%F0%9F%8E%81%3C/text%3E%3C/svg%3E">
+<style>
+/* ============================================================
+   БАЗА
+   ============================================================ */
+:root{
+  --night:#04070e;
+  --gold:#e9cb80;
+  --gold-2:#c39a3c;
+  --cream:#f8f1de;
+  --muted:#a7b8d2;
+  --line:rgba(233,203,128,.22);
+  --serif:Georgia,"Times New Roman",serif;
+  --sans:ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+}
+
+*,*::before,*::after{ box-sizing:border-box; }
+html{ -webkit-text-size-adjust:100%; }
+html,body{ margin:0; padding:0; }
+
+body{
+  background:var(--night);
+  color:var(--cream);
+  font-family:var(--sans);
+  overflow-x:hidden;
+  -webkit-font-smoothing:antialiased;
+  text-rendering:optimizeLegibility;
+}
+body.modal-open{ overflow:hidden; }
+
+button{ font:inherit; color:inherit; }
+button:focus-visible{ outline:none; }
+button:focus-visible::after{
+  content:"";
+  position:absolute;
+  inset:-5px;
+  border:2px solid var(--gold);
+  border-radius:10px;
+  pointer-events:none;
+}
+
+img{ max-width:100%; display:block; }
+
+/* ============================================================
+   СЦЕНА
+   ============================================================ */
+.stage{
+  position:relative;
+  height:100svh;
+  min-height:0;
+  overflow:hidden;
+  isolation:isolate;
+  background:var(--night);
+}
+
+.scene{
+  position:absolute;
+  inset:0;
+  z-index:1;
+  overflow:hidden;
+  background:
+    radial-gradient(150% 90% at 50% 108%, rgba(40,78,120,.55) 0%, transparent 55%),
+    linear-gradient(180deg, #04060d 0%, #060c19 26%, #0a1730 52%, #102344 74%, #142b4e 100%);
+}
+
+.layer{
+  position:absolute;
+  inset:0;
+  pointer-events:none;
+  transform:translate3d(
+    calc(var(--px,0) * var(--k,0) * 1px),
+    calc(var(--py,0) * var(--k,0) * .5px),
+    0);
+  will-change:transform;
+}
+
+/* ---------- небо ---------- */
+.sky{ --k:5; }
+
+.aurora{
+  position:absolute;
+  border-radius:50%;
+  filter:blur(70px);
+  opacity:.32;
+  mix-blend-mode:screen;
+  animation:drift 30s ease-in-out infinite alternate;
+}
+.aurora.a1{
+  width:74vw; height:34vh;
+  left:-10%; top:-6%;
+  background:radial-gradient(circle at 50% 50%, rgba(44,150,158,.5), transparent 68%);
+}
+.aurora.a2{
+  width:60vw; height:28vh;
+  right:-8%; top:-4%;
+  background:radial-gradient(circle at 50% 50%, rgba(108,72,176,.45), transparent 68%);
+  animation-duration:38s;
+  animation-delay:-10s;
+}
+@keyframes drift{
+  0%{ transform:translate3d(0,0,0) scale(1); }
+  100%{ transform:translate3d(3%,2%,0) scale(1.14); }
+}
+
+.moon{
+  position:absolute;
+  right:11%; top:8%;
+  width:clamp(54px, 6.4vw, 88px);
+  aspect-ratio:1;
+  border-radius:50%;
+  background:radial-gradient(circle at 36% 32%, #fffdf4 0%, #f8ecc9 42%, #ddc691 74%, #b99f63 100%);
+  box-shadow:
+    0 0 30px 4px rgba(248,236,201,.3),
+    0 0 90px 34px rgba(221,198,145,.14),
+    0 0 180px 80px rgba(180,150,100,.07);
+}
+.moon::after{
+  content:"";
+  position:absolute;
+  inset:0;
+  border-radius:50%;
+  background:
+    radial-gradient(circle at 33% 30%, rgba(120,100,60,.1) 0 7%, transparent 8%),
+    radial-gradient(circle at 63% 27%, rgba(120,100,60,.08) 0 5%, transparent 6%),
+    radial-gradient(circle at 56% 63%, rgba(120,100,60,.1) 0 9%, transparent 10%);
+}
+
+.stars span{
+  position:absolute;
+  border-radius:50%;
+  background:#fff;
+  animation:twinkle var(--t,4s) ease-in-out infinite;
+  animation-delay:var(--dl,0s);
+}
+.stars span.big{ box-shadow:0 0 6px 1px rgba(255,255,255,.65); }
+@keyframes twinkle{
+  0%,100%{ opacity:.15; transform:scale(.8); }
+  50%{ opacity:1; transform:scale(1); }
+}
+
+/* ---------- лес ---------- */
+.forest{
+  position:absolute;
+  left:-3%;
+  width:106%;
+  bottom:0;
+}
+.forest svg{ display:block; width:100%; height:100%; }
+.layer.far{ --k:14; }
+.layer.mid{ --k:22; }
+.far .forest{ height:52%; opacity:.85; filter:blur(1.4px); }
+.mid .forest{ height:38%; opacity:1; filter:blur(.4px); }
+
+/* ---------- поляна ---------- */
+.ground{ --k:7; }
+
+.snowfield{
+  position:absolute;
+  left:-10%; right:-10%;
+  bottom:-8%;
+  height:56%;
+  border-radius:50% 50% 0 0 / 18% 18% 0 0;
+  background:
+    radial-gradient(58% 80% at 50% 2%, rgba(126,176,224,.32), transparent 62%),
+    linear-gradient(180deg, #24415f 0%, #192f4c 26%, #101f36 58%, #0a1526 100%);
+}
+.snowfield::before{
+  content:"";
+  position:absolute;
+  left:4%; right:4%; top:-10px;
+  height:70px;
+  border-radius:50%;
+  background:radial-gradient(ellipse at 50% 50%, rgba(196,222,248,.4), rgba(150,190,230,.12) 45%, transparent 72%);
+  filter:blur(10px);
+}
+.snowfield::after{
+  content:"";
+  position:absolute;
+  inset:0;
+  border-radius:inherit;
+  background-image:
+    radial-gradient(1.5px 1.5px at 12% 26%, rgba(255,255,255,.5), transparent 60%),
+    radial-gradient(1.2px 1.2px at 38% 18%, rgba(255,255,255,.4), transparent 60%),
+    radial-gradient(1.7px 1.7px at 66% 32%, rgba(255,255,255,.45), transparent 60%),
+    radial-gradient(1.2px 1.2px at 84% 22%, rgba(255,255,255,.3), transparent 60%),
+    radial-gradient(1.4px 1.4px at 24% 58%, rgba(255,255,255,.3), transparent 60%),
+    radial-gradient(1.3px 1.3px at 56% 68%, rgba(255,255,255,.26), transparent 60%),
+    radial-gradient(1.5px 1.5px at 78% 76%, rgba(255,255,255,.22), transparent 60%);
+  opacity:.8;
+}
+
+.tree-glow{
+  position:absolute;
+  left:50%; bottom:8%;
+  width:min(820px, 66vw);
+  height:64%;
+  transform:translateX(-50%);
+  background:radial-gradient(ellipse at 50% 58%, rgba(255,208,128,.3) 0%, rgba(96,190,150,.13) 42%, transparent 72%);
+  filter:blur(30px);
+  mix-blend-mode:screen;
+}
+
+.snow-lit{
+  position:absolute;
+  left:50%; bottom:4%;
+  width:min(980px, 84vw);
+  height:30%;
+  transform:translateX(-50%);
+  background:radial-gradient(ellipse at 50% 60%, rgba(255,205,130,.2) 0%, rgba(255,180,100,.06) 42%, transparent 72%);
+  filter:blur(22px);
+}
+
+.drift{ position:absolute; border-radius:50%; filter:blur(16px); }
+.drift.d1{ left:-8%; bottom:-6%; width:56%; height:16%; background:radial-gradient(ellipse at 50% 40%, rgba(170,205,240,.28), transparent 70%); }
+.drift.d2{ right:-10%; bottom:-8%; width:62%; height:20%; background:radial-gradient(ellipse at 50% 40%, rgba(150,190,230,.24), transparent 70%); }
+.drift.d3{ left:22%; bottom:12%; width:46%; height:10%; background:radial-gradient(ellipse at 50% 50%, rgba(200,225,250,.2), transparent 72%); }
+
+/* ---------- тёплый ореол ЗА ёлкой ---------- */
+.glowback{ --k:4; }
+
+.warm-halo{
+  position:absolute;
+  left:50%;
+  bottom:5%;
+  width:min(1120px, 88vw);
+  height:66%;
+  transform:translateX(-50%);
+  background:
+    radial-gradient(ellipse at 50% 74%, rgba(255,198,124,.38) 0%, rgba(255,172,92,.16) 36%, transparent 66%);
+  filter:blur(26px);
+  mix-blend-mode:screen;
+  pointer-events:none;
+}
+
+/* ---------- ёлка ---------- */
+.center{ --k:3; }
+
+.tree{
+  position:absolute;
+  left:50%;
+  bottom:17%;
+  transform:translateX(-50%);
+  height:min(66vh, 680px);
+  aspect-ratio:640/900;
+  filter:drop-shadow(0 30px 46px rgba(0,0,0,.6));
+}
+.tree svg{
+  display:block;
+  width:100%;
+  height:100%;
+  transform-origin:50% 96%;
+  animation:sway 13s ease-in-out infinite alternate;
+}
+@keyframes sway{
+  0%{ transform:rotate(-.4deg); }
+  100%{ transform:rotate(.4deg); }
+}
+.tree .tw{ animation:twinkle 3.6s ease-in-out infinite; animation-delay:var(--d,0s); transform-box:fill-box; transform-origin:center; }
+
+/* ---------- передний план ---------- */
+.fg{ --k:28; }
+.bokeh{
+  position:absolute;
+  border-radius:50%;
+  background:radial-gradient(circle, rgba(230,242,255,.55), rgba(180,210,240,.1) 58%, transparent 72%);
+  filter:blur(12px);
+  opacity:.3;
+  animation:float 20s ease-in-out infinite alternate;
+}
+.bokeh.b1{ width:150px; height:150px; left:5%; bottom:6%; }
+.bokeh.b2{ width:100px; height:100px; right:8%; bottom:14%; animation-delay:-7s; }
+.bokeh.b3{ width:70px; height:70px; left:20%; bottom:22%; opacity:.18; animation-delay:-13s; }
+@keyframes float{
+  0%{ transform:translate3d(0,0,0); }
+  100%{ transform:translate3d(12px,-26px,0); }
+}
+
+.vignette{
+  position:absolute;
+  inset:0;
+  background:
+    radial-gradient(125% 95% at 50% 46%, transparent 44%, rgba(3,6,12,.62) 100%),
+    linear-gradient(180deg, rgba(3,6,12,.7) 0%, transparent 20%, transparent 82%, rgba(3,6,12,.34) 100%);
+}
+
+#snow{
+  position:absolute;
+  inset:0;
+  width:100%;
+  height:100%;
+  z-index:6;
+  pointer-events:none;
+}
+
+.grain{
+  position:absolute;
+  inset:0;
+  z-index:8;
+  pointer-events:none;
+  opacity:.22;
+  mix-blend-mode:overlay;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)' opacity='.5'/%3E%3C/svg%3E");
+}
+
+/* ============================================================
+   ШАПКА
+   ============================================================ */
+.hud{
+  position:absolute;
+  top:0; left:0; right:0;
+  z-index:40;
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-start;
+  gap:24px;
+  padding:clamp(18px,3vw,36px) clamp(18px,4vw,52px) 0;
+  pointer-events:none;
+}
+.hud::before{
+  content:"";
+  position:absolute;
+  left:0; right:0; top:0;
+  height:220px;
+  background:linear-gradient(180deg, rgba(3,6,12,.8) 0%, rgba(3,6,12,.3) 55%, transparent 100%);
+  z-index:-1;
+}
+.hud > *{ pointer-events:auto; }
+
+.eyebrow{
+  margin:0 0 10px;
+  display:flex;
+  align-items:center;
+  gap:10px;
+  font-size:10px;
+  letter-spacing:.34em;
+  text-transform:uppercase;
+  color:var(--gold);
+  opacity:.92;
+}
+.eyebrow::before{
+  content:"";
+  width:24px; height:1px;
+  background:linear-gradient(90deg, transparent, var(--gold));
+}
+
+h1{
+  margin:0;
+  font-family:var(--serif);
+  font-weight:400;
+  font-size:clamp(25px, 3.5vw, 44px);
+  line-height:1.03;
+  letter-spacing:-.01em;
+  color:var(--cream);
+  text-shadow:0 8px 34px rgba(0,0,0,.65);
+}
+h1 em{
+  font-style:italic;
+  background:linear-gradient(180deg,#fff8e6,#e9cb80 58%,#b8912f);
+  -webkit-background-clip:text;
+  background-clip:text;
+  color:transparent;
+  -webkit-text-fill-color:transparent;
+}
+
+.tagline{
+  margin:10px 0 0;
+  font-size:12.5px;
+  line-height:1.55;
+  letter-spacing:.01em;
+  color:rgba(210,224,244,.7);
+  max-width:42ch;
+}
+
+.status{
+  display:flex;
+  align-items:center;
+  gap:14px;
+  flex-wrap:wrap;
+  justify-content:flex-end;
+  padding-top:6px;
+}
+
+.chip{
+  display:inline-flex;
+  align-items:center;
+  gap:9px;
+  padding:9px 15px;
+  border-radius:999px;
+  border:1px solid var(--line);
+  background:rgba(8,16,30,.55);
+  backdrop-filter:blur(8px);
+  font-size:12px;
+  letter-spacing:.03em;
+  font-variant-numeric:tabular-nums;
+  color:#e7eefb;
+  white-space:nowrap;
+}
+.chip .dot{
+  width:6px; height:6px;
+  border-radius:50%;
+  background:var(--gold);
+  box-shadow:0 0 10px rgba(233,203,128,.9);
+  animation:pulse 2.8s ease-in-out infinite;
+  flex:none;
+}
+@keyframes pulse{
+  0%,100%{ opacity:1; transform:scale(1); }
+  50%{ opacity:.35; transform:scale(.75); }
+}
+
+.progress{ display:flex; align-items:center; gap:10px; }
+.bar{
+  width:112px; height:5px;
+  border-radius:999px;
+  background:rgba(255,255,255,.1);
+  overflow:hidden;
+  box-shadow:inset 0 1px 2px rgba(0,0,0,.55);
+}
+.bar i{
+  display:block;
+  height:100%;
+  width:0%;
+  border-radius:999px;
+  background:linear-gradient(90deg,#8a6b1d,#e9cb80 60%,#fff2c9);
+  box-shadow:0 0 12px rgba(233,203,128,.5);
+  transition:width .8s cubic-bezier(.2,.8,.2,1);
+}
+.plabel{
+  font-size:12px;
+  color:var(--muted);
+  font-variant-numeric:tabular-nums;
+  white-space:nowrap;
+}
+
+.hudbtns{ display:flex; gap:8px; }
+.icon{
+  width:36px; height:36px;
+  display:grid;
+  place-items:center;
+  border-radius:50%;
+  border:1px solid var(--line);
+  background:rgba(8,16,30,.55);
+  color:#c9d6ea;
+  font-size:15px;
+  cursor:pointer;
+  position:relative;
+  backdrop-filter:blur(8px);
+  transition:color .25s, border-color .25s, transform .25s;
+}
+.icon:hover{ color:var(--gold); border-color:rgba(233,203,128,.5); transform:translateY(-1px); }
+.icon[aria-pressed="false"]{ color:#6b7b93; }
+
+.hint{
+  position:absolute;
+  left:50%;
+  bottom:18px;
+  transform:translateX(-50%);
+  z-index:41;
+  margin:0;
+  font-size:11.5px;
+  letter-spacing:.08em;
+  color:rgba(190,205,228,.55);
+  text-align:center;
+  pointer-events:none;
+  white-space:nowrap;
+}
+.hint b{ color:var(--gold); font-weight:500; }
+
+/* ============================================================
+   ПОДАРКИ-КАРТОЧКИ
+   ============================================================ */
+.gifts{
+  position:absolute;
+  inset:0;
+  z-index:25;
+  pointer-events:none;
+}
+
+.gift{
+  position:absolute;
+  left:calc(var(--x) * 1%);
+  top:calc(var(--y) * 1%);
+  width:calc(var(--w) * var(--u,1) * 1px);
+  height:calc(var(--h) * var(--u,1) * 1px);
+  transform:translate(-50%,-50%) rotate(var(--r, 0deg));
+  border:0;
+  padding:0;
+  background:none;
+  cursor:pointer;
+  z-index:var(--z, 10);
+  pointer-events:auto;
+  will-change:transform;
+  transition: transform .15s ease;
+  -webkit-tap-highlight-color:transparent;
+}
+.gift:hover,
+.gift:focus-visible{
+  transform:translate(-50%,-50%) rotate(0deg) translateY(-9px) scale(1.04);
+  z-index:70;
+}
+
+/* мягкая тень на снегу */
+.g-shadow{
+  position:absolute;
+  left:50%;
+  bottom:-9%;
+  width:118%;
+  height:30%;
+  transform:translateX(-50%);
+  border-radius:50%;
+  background:radial-gradient(ellipse at 50% 45%, rgba(2,7,16,.6) 0%, rgba(2,7,16,.22) 46%, transparent 72%);
+  filter:blur(5px);
+  opacity:.85;
+  transition:opacity .25s ease, transform .25s ease;
+  pointer-events:none;
+  z-index:0;
+}
+.gift:hover .g-shadow,
+.gift:focus-visible .g-shadow{
+  opacity:1;
+  transform:translateX(-50%) scale(1.12);
+}
+
+/* сугробик у подножия */
+.g-drift{
+  position:absolute;
+  left:50%;
+  bottom:-7%;
+  width:100%;
+  height:18%;
+  transform:translateX(-50%);
+  border-radius:50%;
+  background:radial-gradient(ellipse at 50% 42%, rgba(238,247,255,.85) 0%, rgba(196,222,246,.4) 52%, transparent 76%);
+  filter:blur(3px);
+  opacity:.38;
+  pointer-events:none;
+  z-index:4;
+}
+
+/* бумага — матовая */
+.g-card{
+  position:absolute;
+  inset:0;
+  border-radius:12px;
+  background-color:var(--paper);
+  background-image:var(--pat, none);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.13),
+    inset 0 0 0 1px rgba(255,255,255,.045),
+    inset 0 -34px 50px -26px rgba(0,0,0,.4);
+  transition:box-shadow .45s, filter .45s;
+}
+.g-card::after{
+  content:"";
+  position:absolute;
+  inset:0;
+  border-radius:inherit;
+  pointer-events:none;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='90' height='90'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='90' height='90' filter='url(%23n)' opacity='.55'/%3E%3C/svg%3E");
+  opacity:.1;
+  mix-blend-mode:overlay;
+}
+
+/* формы */
+.shape-round .g-card{ border-radius:50%; }
+.shape-hex .g-card{
+  border-radius:0;
+  clip-path:polygon(26% 2%, 74% 2%, 100% 50%, 74% 98%, 26% 98%, 0 50%);
+}
+.shape-tall .g-card{ border-radius:9px; }
+.shape-wide .g-card{ border-radius:10px; }
+
+/* ленты */
+.g-wrap{
+  position:absolute;
+  inset:0;
+  border-radius:inherit;
+  overflow:hidden;
+}
+.shape-hex .g-wrap{ clip-path:inherit; }
+.g-v{
+  position:absolute;
+  left:50%; top:0; bottom:0;
+  width:9%;
+  transform:translateX(-50%);
+  background:linear-gradient(90deg,
+    rgba(0,0,0,.15) 0%, var(--rib) 32%, var(--rib) 68%, rgba(0,0,0,.18) 100%);
+}
+.g-h{
+  position:absolute;
+  top:46%; left:0; right:0;
+  height:9%;
+  transform:translateY(-50%);
+  background:linear-gradient(180deg,
+    rgba(0,0,0,.13) 0%, var(--rib) 32%, var(--rib) 68%, rgba(0,0,0,.15) 100%);
+}
+.shape-round .g-v{ width:12%; }
+.shape-round .g-h{ height:12%; }
+
+/* бант */
+.g-bow{
+  position:absolute;
+  left:50%;
+  top:46%;
+  width:42%;
+  aspect-ratio:100/80;
+  transform:translate(-50%,-46%);
+  color:var(--rib);
+  filter:drop-shadow(0 4px 5px rgba(0,0,0,.45)) brightness(1.06);
+  pointer-events:none;
+  z-index:3;
+}
+.g-bow svg{ display:block; width:100%; height:100%; overflow:visible; }
+.shape-round .g-bow{ width:34%; top:42%; }
+.shape-tall .g-bow{ width:52%; top:26%; }
+.shape-tall .g-h{ top:26%; }
+
+/* номер */
+.g-num{
+  position:absolute;
+  left:9%;
+  top:7%;
+  font-family:var(--sans);
+  font-weight:300;
+  font-size:calc(var(--w) * var(--u,1) * .3px);
+  line-height:.9;
+  letter-spacing:-.035em;
+  color:var(--ink, #f6efdd);
+  opacity:.95;
+  text-shadow:0 1px 3px rgba(0,0,0,.2);
+  pointer-events:none;
+}
+.shape-round .g-num,
+.shape-hex .g-num{ display:none; }
+
+/* крафтовая бирка */
+.g-tag{
+  display:none;
+  position:absolute;
+  left:57%;
+  top:50%;
+  z-index:5;
+  padding:3px 7px 2px;
+  border-radius:2px;
+  background:linear-gradient(180deg,#ddc9a1 0%, #b99b6e 100%);
+  color:#3a2b1a;
+  font-family:var(--serif);
+  font-size:calc(var(--w) * var(--u,1) * .155px);
+  line-height:1.2;
+  letter-spacing:.02em;
+  transform:rotate(10deg);
+  box-shadow:0 3px 6px rgba(0,0,0,.45);
+  pointer-events:none;
+}
+.shape-round .g-tag,
+.shape-hex .g-tag{ display:block; }
+.g-tag::before{
+  content:"";
+  position:absolute;
+  left:-8px;
+  top:-10px;
+  width:14px;
+  height:14px;
+  border-left:1.5px solid #8c7448;
+  border-top:1.5px solid #8c7448;
+  border-radius:8px 0 0 0;
+  transform:rotate(16deg);
+}
+
+/* еловая веточка с корицей */
+.g-sprig{
+  position:absolute;
+  left:33%;
+  top:33%;
+  width:18%;
+  z-index:5;
+  transform:rotate(-14deg);
+  pointer-events:none;
+  filter:drop-shadow(0 2px 3px rgba(0,0,0,.35));
+}
+.g-sprig svg{ display:block; width:100%; height:auto; overflow:visible; }
+
+/* замок */
+.g-lock{
+  position:absolute;
+  right:8%;
+  top:8%;
+  width:15%;
+  aspect-ratio:1;
+  color:var(--ink, #f6efdd);
+  opacity:0;
+  transition:opacity .4s;
+  pointer-events:none;
+}
+.g-lock svg{ display:block; width:100%; height:100%; }
+.state-locked .g-lock{ opacity:.5; }
+.state-locked .g-card{ filter:saturate(.65) brightness(.72); }
+.state-locked .g-num{ opacity:.55; }
+
+/* «сегодня» */
+.state-today .g-card{
+  box-shadow:
+    inset 0 0 0 2px rgba(233,203,128,.8),
+    inset 0 1px 0 rgba(255,255,255,.2),
+    0 0 40px rgba(233,203,128,.35),
+    0 22px 34px -16px rgba(0,0,0,.7);
+}
+.state-today .g-num{ color:#ffe6a8; }
+
+/* открыт */
+.g-check{
+  position:absolute;
+  left:-8px; top:-8px;
+  width:24px; height:24px;
+  display:grid;
+  place-items:center;
+  border-radius:50%;
+  background:linear-gradient(180deg,#f3dda4,#c9a44a);
+  color:#37280a;
+  font-size:12px;
+  font-weight:700;
+  box-shadow:0 3px 8px rgba(0,0,0,.45);
+  opacity:0;
+  transform:scale(.6);
+  transition:opacity .4s, transform .4s;
+  pointer-events:none;
+  z-index:6;
+}
+.state-opened .g-check{ opacity:1; transform:scale(1); }
+.state-opened .g-card{
+  box-shadow:
+    inset 0 0 0 1px rgba(233,203,128,.5),
+    inset 0 1px 0 rgba(255,255,255,.12),
+    0 0 28px rgba(233,203,128,.18),
+    0 18px 30px -16px rgba(0,0,0,.7);
+}
+
+.gift[data-row="2"] .g-card::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  border-radius:inherit;
+  pointer-events:none;
+  background:linear-gradient(180deg, rgba(255,190,120,.16) 0%, rgba(255,190,120,.04) 38%, transparent 62%);
+}
+
+/* покачивание */
+.gift.shake{ animation:cardShake .5s cubic-bezier(.36,.07,.19,.97); }
+@keyframes cardShake{
+  0%,100%{ transform:translate(-50%,-50%) rotate(var(--r,0deg)); }
+  25%{ transform:translate(-52%,-50%) rotate(-3deg); }
+  50%{ transform:translate(-48%,-50%) rotate(3deg); }
+  75%{ transform:translate(-51%,-50%) rotate(-1.5deg); }
+}
+
+/* вспышка при открытии */
+.gift.is-opening .g-card{ animation:cardFlash .85s ease-out; }
+@keyframes cardFlash{
+  0%{ filter:brightness(1); }
+  25%{ filter:brightness(1.5) saturate(1.15); }
+  100%{ filter:brightness(1); }
+}
+.gift.is-opening .g-bow{ animation:bowPop .7s ease-out forwards; }
+@keyframes bowPop{
+  0%{ transform:translate(-50%,-44%) scale(1); opacity:1; }
+  100%{ transform:translate(-50%,-130%) scale(.6) rotate(20deg); opacity:0; }
+}
+
+.spark{
+  position:absolute;
+  left:50%;
+  top:45%;
+  width:6px; height:6px;
+  border-radius:50%;
+  background:#ffedb4;
+  box-shadow:0 0 10px 2px rgba(255,214,120,.9);
+  animation:sparkFly var(--t, .75s) cubic-bezier(.1,.7,.3,1) forwards;
+  pointer-events:none;
+  z-index:5;
+}
+@keyframes sparkFly{
+  0%{ transform:rotate(var(--a)) translateX(0) scale(1); opacity:1; }
+  100%{ transform:rotate(var(--a)) translateX(var(--r)) scale(.1); opacity:0; }
+}
+
+/* ============================================================
+   МОДАЛКА
+   ============================================================ */
+.modal{
+  position:fixed;
+  inset:0;
+  z-index:100;
+  display:grid;
+  place-items:center;
+  padding:24px;
+  opacity:0;
+  visibility:hidden;
+  transition:opacity .35s ease, visibility .35s;
+}
+.modal.is-open{ opacity:1; visibility:visible; }
+
+.modal-backdrop{
+  position:absolute;
+  inset:0;
+  background:rgba(3,6,12,.74);
+  backdrop-filter:blur(10px);
+}
+
+.modal-card{
+  position:relative;
+  width:min(560px, 100%);
+  max-height:min(86svh, 760px);
+  overflow-y:auto;
+  overscroll-behavior:contain;
+  padding:clamp(26px, 4vw, 44px);
+  border-radius:22px;
+  border:1px solid rgba(233,203,128,.26);
+  background:
+    radial-gradient(120% 80% at 50% -10%, rgba(52,92,86,.32), transparent 60%),
+    linear-gradient(165deg, #101c31 0%, #0a1220 55%, #070d18 100%);
+  box-shadow:
+    0 40px 90px -30px rgba(0,0,0,.9),
+    inset 0 1px 0 rgba(255,255,255,.06),
+    inset 0 0 0 6px rgba(233,203,128,.04);
+  transform:translateY(18px) scale(.97);
+  opacity:0;
+  transition:transform .45s cubic-bezier(.2,.8,.2,1), opacity .35s ease;
+  scrollbar-width:thin;
+  scrollbar-color:rgba(233,203,128,.35) transparent;
+}
+.modal.is-open .modal-card{ transform:none; opacity:1; }
+.modal-card::-webkit-scrollbar{ width:8px; }
+.modal-card::-webkit-scrollbar-thumb{ background:rgba(233,203,128,.3); border-radius:8px; }
+
+.modal-card::before,
+.modal-card::after{
+  content:"";
+  position:absolute;
+  width:34px; height:34px;
+  border:1px solid rgba(233,203,128,.42);
+  pointer-events:none;
+}
+.modal-card::before{ top:12px; left:12px; border-right:0; border-bottom:0; border-radius:10px 0 0 0; }
+.modal-card::after{ bottom:12px; right:12px; border-left:0; border-top:0; border-radius:0 0 10px 0; }
+
+.m-close{
+  position:absolute;
+  top:14px; right:14px;
+  width:34px; height:34px;
+  display:grid;
+  place-items:center;
+  border-radius:50%;
+  border:1px solid rgba(233,203,128,.25);
+  background:rgba(255,255,255,.04);
+  color:#cbd7e9;
+  font-size:17px;
+  line-height:1;
+  cursor:pointer;
+  transition:color .2s, background .2s, transform .2s;
+}
+.m-close:hover{ color:#fff; background:rgba(233,203,128,.14); transform:rotate(90deg); }
+
+.m-day{
+  margin:0 0 12px;
+  font-size:10.5px;
+  letter-spacing:.3em;
+  text-transform:uppercase;
+  color:var(--gold);
+  opacity:.9;
+}
+
+.m-title{
+  margin:0 0 18px;
+  font-family:var(--serif);
+  font-weight:400;
+  font-size:clamp(23px, 3.4vw, 31px);
+  line-height:1.15;
+  color:var(--cream);
+}
+
+.m-text{
+  margin:0 0 14px;
+  font-size:clamp(15px, 1.5vw, 16.5px);
+  line-height:1.62;
+  color:#d6e0ef;
+}
+.m-text:last-child{ margin-bottom:0; }
+
+.m-q{
+  margin:0 0 20px;
+  font-family:var(--serif);
+  font-style:italic;
+  font-size:clamp(17px, 2vw, 20px);
+  line-height:1.5;
+  color:#e9e2cf;
+}
+
+.m-reveal{
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  padding:10px 18px;
+  border-radius:999px;
+  border:1px solid rgba(233,203,128,.4);
+  background:rgba(233,203,128,.1);
+  color:var(--gold);
+  font-size:13px;
+  letter-spacing:.04em;
+  cursor:pointer;
+  transition:background .25s, color .25s;
+}
+.m-reveal:hover{ background:rgba(233,203,128,.2); color:#fff2cd; }
+
+.m-a{
+  margin:18px 0 0;
+  padding:16px 18px;
+  border-radius:12px;
+  border:1px solid rgba(233,203,128,.22);
+  background:rgba(233,203,128,.06);
+  font-family:var(--serif);
+  font-size:20px;
+  color:#ffe9b8;
+  opacity:0;
+  transform:translateY(8px);
+  transition:opacity .45s ease, transform .45s ease;
+}
+.m-a.is-shown{ opacity:1; transform:none; }
+
+.m-figure{ margin:0 0 6px; border-radius:14px; overflow:hidden; }
+.m-figure img{ width:100%; max-height:46svh; object-fit:cover; border-radius:14px; }
+
+.ph{
+  display:none;
+  min-height:190px;
+  padding:26px 20px;
+  border-radius:14px;
+  border:1px dashed rgba(233,203,128,.35);
+  background:
+    radial-gradient(120% 90% at 50% 0%, rgba(70,110,140,.18), transparent 60%),
+    rgba(255,255,255,.02);
+  text-align:center;
+  place-items:center;
+  gap:10px;
+  color:#a9b8ce;
+  font-size:13px;
+  line-height:1.5;
+}
+.ph .ph-icon{ font-size:26px; opacity:.8; }
+.ph code{
+  font-family:ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size:11.5px;
+  color:#e2c98a;
+  background:rgba(233,203,128,.1);
+  padding:2px 7px;
+  border-radius:5px;
+}
+.m-figure.is-missing{ display:none; }
+.m-figure.is-missing img{ display:none; }
+
+.m-caption{
+  margin:10px 0 0;
+  font-size:12.5px;
+  line-height:1.5;
+  color:#8fa1ba;
+}
+
+.m-foot{
+  margin:26px 0 0;
+  padding-top:16px;
+  border-top:1px solid rgba(255,255,255,.07);
+  display:flex;
+  justify-content:space-between;
+  gap:12px;
+  font-size:11px;
+  letter-spacing:.08em;
+  text-transform:uppercase;
+  color:#63738c;
+}
+
+/* ============================================================
+   ТОСТ
+   ============================================================ */
+.toast{
+  position:fixed;
+  left:50%;
+  bottom:26px;
+  z-index:110;
+  transform:translate(-50%, 16px);
+  opacity:0;
+  pointer-events:none;
+  max-width:min(92vw, 430px);
+  padding:12px 20px;
+  border-radius:999px;
+  border:1px solid rgba(233,203,128,.3);
+  background:rgba(8,16,30,.94);
+  backdrop-filter:blur(10px);
+  box-shadow:0 22px 50px -20px rgba(0,0,0,.9);
+  font-size:13px;
+  line-height:1.45;
+  text-align:center;
+  color:#f2ebd9;
+  transition:opacity .3s ease, transform .3s cubic-bezier(.2,.8,.2,1);
+}
+.toast.is-shown{ opacity:1; transform:translate(-50%,0); }
+
+/* ============================================================
+   АДАПТИВ
+   ============================================================ */
+@media (max-width: 1180px){
+  .tagline{ display:none; }
+  .status{ gap:10px; }
+}
+
+@media (max-width: 860px){
+  .stage{
+    height:auto;
+    min-height:0;
+    display:flex;
+    flex-direction:column;
+    overflow:visible;
+  }
+  .hud{
+    position:relative;
+    order:0;
+    padding:20px 18px 12px;
+    gap:12px;
+    flex-wrap:wrap;
+    background:linear-gradient(180deg,#050a14,#081120);
+  }
+  .hud::before{ display:none; }
+  .hud h1{ font-size:clamp(25px,7vw,34px); }
+  .eyebrow{ margin-bottom:8px; }
+  .status{
+    width:100%;
+    justify-content:space-between;
+    padding-top:0;
+    gap:10px 12px;
+  }
+  .bar{ width:92px; }
+
+  .scene{
+    position:relative;
+    order:1;
+    height:min(58svh, 540px);
+    min-height:340px;
+    border-bottom:1px solid rgba(233,203,128,.1);
+  }
+  .tree{ height:min(46svh, 400px); bottom:12%; }
+  .moon{ right:9%; top:7%; width:54px; }
+  .aurora{ filter:blur(48px); opacity:.24; }
+  .drift{ filter:blur(12px); }
+  .grain{ opacity:.16; }
+
+  .scroll-cue{
+    position:absolute;
+    left:50%;
+    bottom:14px;
+    transform:translateX(-50%);
+    z-index:7;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:3px;
+    font-size:9.5px;
+    letter-spacing:.24em;
+    text-transform:uppercase;
+    color:rgba(200,215,235,.5);
+    pointer-events:none;
+  }
+  .scroll-cue i{ font-style:normal; font-size:13px; animation:cue 2.4s ease-in-out infinite; }
+  @keyframes cue{
+    0%,100%{ transform:translateY(0); opacity:.4; }
+    50%{ transform:translateY(4px); opacity:1; }
+  }
+
+  .gifts{
+    position:relative;
+    order:2;
+    inset:auto;
+    display:grid;
+    grid-template-columns:repeat(3, minmax(0,1fr));
+    gap:18px 8px;
+    padding:20px 12px 26px;
+    background:
+      radial-gradient(120% 50% at 50% 0%, rgba(40,72,108,.4), transparent 62%),
+      linear-gradient(180deg,#0a1626 0%, #071120 46%, #050c17 100%);
+    pointer-events:auto;
+  }
+  .gift{
+    position:relative;
+    left:auto; top:auto;
+    width:100%;
+    height:auto;
+    aspect-ratio:1.26;
+    transform:none;
+    z-index:auto;
+    filter:drop-shadow(0 10px 12px rgba(0,0,0,.45));
+  }
+  .gift:hover,
+  .gift:focus-visible{
+    transform:translateY(-4px) scale(1.02);
+    filter:drop-shadow(0 16px 16px rgba(0,0,0,.5));
+  }
+  .g-num{ font-size:30px; }
+  .g-check{ width:22px; height:22px; font-size:11px; }
+
+  .hint{
+    position:relative;
+    order:3;
+    left:auto; bottom:auto;
+    transform:none;
+    padding:0 16px 24px;
+    font-size:11.5px;
+    white-space:normal;
+    text-align:center;
+    background:#050c17;
+  }
+  .toast{ bottom:18px; }
+  .modal{ padding:14px; }
+  .modal-card{ max-height:90svh; padding:26px 20px; }
+  .m-close{ top:10px; right:10px; }
+}
+
+@media (min-width: 861px){
+  .scroll-cue{ display:none; }
+}
+
+@media (max-width: 420px){
+  .gifts{ gap:12px 6px; padding:16px 9px 22px; }
+  .chip{ font-size:11px; padding:8px 12px; }
+  .bar{ width:72px; }
+}
+
+/* ============================================================
+   МЕНЬШЕ ДВИЖЕНИЯ
+   ============================================================ */
+@media (prefers-reduced-motion: reduce){
+  *,*::before,*::after{
+    animation-duration:.001ms !important;
+    animation-iteration-count:1 !important;
+    transition-duration:.001ms !important;
+  }
+  .layer{ transform:none !important; }
+  .tree svg{ animation:none; }
+}
+</style>
+</head>
+<body>
+
+<main class="stage" id="stage">
+
+  <header class="hud">
+    <div class="brand">
+      <p class="eyebrow">декабрь 2026</p>
+      <h1>Адвент-календарь</h1>
+      <p class="tagline" id="tagline">Тридцать один подарок в заснеженном лесу. Открывай по одному — с первого по тридцать первое декабря.</p>
+    </div>
+    <div class="status">
+      <div class="chip"><i class="dot"></i><span id="countdown">считаю дни…</span></div>
+      <div class="progress">
+        <span class="bar"><i id="bar"></i></span>
+        <span class="plabel" id="plabel">0 / 31</span>
+      </div>
+      <div class="hudbtns">
+        <button class="icon" id="soundBtn" type="button" aria-pressed="true" aria-label="Звук">♪</button>
+        <button class="icon" id="resetBtn" type="button" aria-label="Сбросить прогресс">↺</button>
+      </div>
+    </div>
+  </header>
+
+  <div class="scene" aria-hidden="true">
+    <div class="layer sky">
+      <div class="aurora a1"></div>
+      <div class="aurora a2"></div>
+      <div class="stars" id="stars"></div>
+      <div class="moon"></div>
+    </div>
+
+    <div class="layer far"><div class="forest" id="forestFar"></div></div>
+    <div class="layer mid"><div class="forest" id="forestMid"></div></div>
+
+    <div class="layer ground">
+      <div class="snowfield"></div>
+      <div class="tree-glow"></div>
+      <div class="snow-lit"></div>
+      <div class="drift d3"></div>
+      <div class="drift d1"></div>
+      <div class="drift d2"></div>
+    </div>
+
+    <div class="layer glowback">
+      <div class="warm-halo"></div>
+    </div>
+
+    <div class="layer center">
+      <div class="tree" id="tree"></div>
+    </div>
+
+    <div class="layer fg">
+      <div class="bokeh b1"></div>
+      <div class="bokeh b2"></div>
+      <div class="bokeh b3"></div>
+      <div class="vignette"></div>
+    </div>
+
+    <canvas id="snow"></canvas>
+    <div class="grain"></div>
+
+    <div class="scroll-cue" aria-hidden="true"><span>31 подарок ниже</span><i>↓</i></div>
+  </div>
+
+  <div class="gifts" id="gifts"></div>
+
+  <p class="hint" id="hint">нажми на подарок — внутри сюрприз</p>
+</main>
+
+<div class="modal" id="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle" aria-hidden="true">
+  <div class="modal-backdrop" data-close></div>
+  <div class="modal-card">
+    <button class="m-close" id="modalClose" type="button" aria-label="Закрыть">✕</button>
+    <p class="m-day" id="modalDay">день 1</p>
+    <h2 class="m-title" id="modalTitle"></h2>
+    <div class="m-body" id="modalBody"></div>
+    <p class="m-foot"><span>адвент-календарь</span><span id="modalFoot">2026</span></p>
+  </div>
+</div>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<noscript>
+  <p style="padding:28px;text-align:center">Для календаря нужен JavaScript — без него подарки не открываются.</p>
+</noscript>
+
+<script>
+(function () {
+  "use strict";
+
+  var YEAR = 2026;
+  var MONTH = 11;          // декабрь (0-based)
+  var TOTAL = 31;
+  var KEY_OPENED = "advent-2026:opened";
+  var KEY_SOUND  = "advent-2026:sound";
+
+  /* ==========================================================
+     КОНТЕНТ. РЕДАКТИРУЙ ЗДЕСЬ.
+     type: "text"   -> { title, text }
+     type: "riddle" -> { title, q, a }
+     type: "image"  -> { title, img, caption }
+     Картинки лежат в папке photos/ рядом с файлом.
+     ========================================================== */
+  var CONTENT = [
+    { type:"text", title:"Первое письмо",
+      text:"Этот календарь не про коробки с бантами. Он про тридцать один день, в которые я хочу быть рядом, даже если между нами километры.\nДальше будет по-разному: тёплое, смешное, неожиданное. Открывай по одной." },
+
+    { type:"image", title:"Фотография", img:"photos/1.jpg",
+      caption:"Одна фотография, которую я люблю. Если её ещё нет — значит, скоро появится." },
+
+    { type:"text", title:"10 причин",
+      text:"1. Как ты смеёшься над своими же шутками.\n2. Как злишься, а через минуту пишешь первой.\n3. Твой голос в четыре утра.\n4. Как рассказываешь про день, даже если он был никакой.\n5. Твоё упрямство — в хорошем смысле.\n6. Как заботишься, не называя это заботой.\n7. Сообщения без точек.\n8. Умение быть тихой рядом, даже на расстоянии.\n9. Твоё «я не устала», когда устала.\n10. Как с тобой просто." },
+
+    { type:"text", title:"Музыкальная шкатулка",
+      text:"Есть песня, которая у меня намертво связана с тобой. Включи и дослушай до конца. Потом напиши, что почувствовала." },
+
+    { type:"text", title:"Комплимент",
+      text:"Ты замечаешь мелочи, которые другие пропускают. Ты умеешь быть рядом, даже когда молчишь. И ты гораздо сильнее, чем сама про себя думаешь." },
+
+    { type:"text", title:"Секретный конверт",
+      text:"Я ревную не к людям. Я ревную к расстоянию: оно забирает время, которое я хотел бы провести с тобой.\nЭто не жалоба. Просто правда." },
+
+    { type:"riddle", title:"Первый сюрприз",
+      q:"Чем больше отдаёшь — тем больше остаётся. Что это?",
+      a:"Время. И я готов отдать тебе всё." },
+
+    { type:"text", title:"Машина времени",
+      text:"Август — первые сообщения, которые я перечитывал по десять раз.\nСентябрь — ночные разговоры, после которых утро было добрым.\nОктябрь — понимание, что это уже не просто переписка." },
+
+    { type:"text", title:"Наши переписки",
+      text:"Я перечитал всё. Есть моменты, которые я помню лучше, чем вчерашний день. И есть твоё первое сообщение — я его не удалю никогда." },
+
+    { type:"text", title:"Портрет",
+      text:"Ты человек, с которым тишина не неловкая. Ты слушаешь и не лезешь с советами, когда не просят. И ты смешная, даже когда не стараешься." },
+
+    { type:"text", title:"Коробка смеха",
+      text:"Наши шутки нельзя объяснить со стороны. Но я храню их все. Особенно ту, которую мы обещали не вспоминать." },
+
+    { type:"text", title:"Голос",
+      text:"Сегодня без текста. Включи голосовое, которое я отправил, — там всё, что я хотел сказать вслух." },
+
+    { type:"text", title:"Маленькое обещание",
+      text:"Обещаю: когда ты начнёшь рассказывать что-то важное, я отложу всё. Даже игру." },
+
+    { type:"text", title:"Письмо на расстоянии",
+      text:"Любить на расстоянии — это считать дни, а потом забывать про них, когда ты пишешь. Это привыкать к экрану и всё равно не привыкнуть." },
+
+    { type:"riddle", title:"Угадай меня",
+      q:"Что я делаю первым, когда просыпаюсь?",
+      a:"Проверяю, не написала ли ты. Всё остальное — потом." },
+
+    { type:"riddle", title:"Угадай нас",
+      q:"Какой месяц у нас был самым громким?",
+      a:"Сентябрь. Мы не могли наговориться." },
+
+    { type:"text", title:"Открытка из будущего",
+      text:"Однажды мы будем спорить, кто выключит свет, и это будет лучшим событием дня. Я жду этого больше, чем кажется." },
+
+    { type:"text", title:"Киносеанс",
+      text:"Фильм на вечер. Включаем одновременно, пишем в чат, на паузу не ставим. Попкорн каждый свой." },
+
+    { type:"text", title:"Плейлист",
+      text:"Десять треков. Слушай по дороге домой — пусть вечер будет не один." },
+
+    { type:"text", title:"Купон",
+      text:"Этот купон даёт один вечер, который я провожу только с тобой. Без работы, без игр, без «подожди минуту»." },
+
+    { type:"text", title:"Зимняя прогулка",
+      text:"Представь: снег, город, мы идём без цели. Ты мёрзнешь, я отдаю шарф. Через полчаса стоим с кофе и молчим.\nХорошо же." },
+
+    { type:"text", title:"То, чего ты не знаешь",
+      text:"Я боюсь не успеть. Не доехать, не сказать, не показать. Звучит странно, но это так." },
+
+    { type:"text", title:"Её достоинства",
+      text:"Ты умеешь прощать быстрее, чем я. Не боишься говорить «мне больно». И тащишь на себе больше, чем показываешь." },
+
+    { type:"image", title:"Рождественская открытка", img:"photos/2.jpg",
+      caption:"Открытка, которую я бы подписал от руки." },
+
+    { type:"text", title:"Маленький мир",
+      text:"Есть место, которое существует только для нас: маленький дом, снег, кот, два пледа. Там всегда горит свет и никто не спешит." },
+
+    { type:"text", title:"Наше будущее",
+      text:"Список: встретить Новый год вместе, проиграть тебе в настолку, приготовить что-то сложное, уехать туда, где не были." },
+
+    { type:"text", title:"Самый честный разговор",
+      text:"Я не всегда говорю, что чувствую. Не потому что не хочу, а потому что не умею. Это моя работа над собой, и ты в ней — причина." },
+
+    { type:"riddle", title:"Неожиданный подарок",
+      q:"Он не помещается в посылку, ничего не весит и всегда с тобой. Что это?",
+      a:"Моё «я рядом». Пока только в сообщениях." },
+
+    { type:"text", title:"Спасибо",
+      text:"Спасибо за ночные разговоры, за терпение и за то, что не ушла, когда было легко уйти." },
+
+    { type:"text", title:"Последняя коробка",
+      text:"Завтра будет нечто особенное. Не буду портить сюрприз. Скажу только: возьми с собой время." },
+
+    { type:"text", title:"Последний подарок",
+      text:"Если собрать этот год в одну мысль, получится: мне повезло. Не с расстоянием и не с обстоятельствами — с тобой.\nЯ не знаю, что будет дальше, но знаю, с кем хочу это выяснять.\nС Новым годом. И это не конец календаря — это начало всего, что мы ещё не сделали." }
+  ];
+
+  /* ==========================================================
+     УТИЛИТЫ
+     ========================================================== */
+  var reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  var canHover = window.matchMedia("(hover: hover) and (pointer: fine)").matches;
+
+  function $(sel, root) { return (root || document).querySelector(sel); }
+  function $$(sel, root) { return Array.prototype.slice.call((root || document).querySelectorAll(sel)); }
+  function pad(n) { return n < 10 ? "0" + n : String(n); }
+  function clamp(v, a, b) { return v < a ? a : v > b ? b : v; }
+
+  function readStore(key) { try { return window.localStorage.getItem(key); } catch (e) { return null; } }
+  function writeStore(key, val) { try { window.localStorage.setItem(key, val); } catch (e) {} }
+
+  function mulberry(seed) {
+    return function () {
+      seed |= 0; seed = (seed + 0x6D2B79F5) | 0;
+      var t = Math.imul(seed ^ (seed >>> 15), 1 | seed);
+      t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
+  }
+
+  /* ==========================================================
+     СОСТОЯНИЕ
+     ========================================================== */
+  var opened = new Set();
+  (function () {
+    var raw = readStore(KEY_OPENED);
+    if (!raw) return;
+    try {
+      var arr = JSON.parse(raw);
+      if (Array.isArray(arr)) {
+        arr.forEach(function (d) {
+          d = parseInt(d, 10);
+          if (d >= 1 && d <= TOTAL) opened.add(d);
+        });
+      }
+    } catch (e) {}
+  })();
+
+  var soundOn = readStore(KEY_SOUND) !== "off";
+  var testMode = /(^|[#&?])test\b/i.test(window.location.hash);
+
+  /* РАЗБЛОКИРОВКА. Сейчас все подарки открыты.
+     В декабре поставь false — и они снова будут открываться по датам. */
+  var UNLOCK_ALL = true;
+
+  var stage = $("#stage");
+  var giftsLayer = $("#gifts");
+  var countdownEl = $("#countdown");
+  var barEl = $("#bar");
+  var plabelEl = $("#plabel");
+  var hintEl = $("#hint");
+  var toastEl = $("#toast");
+  var modal = $("#modal");
+  var modalCard = $(".modal-card", modal);
+  var modalClose = $("#modalClose");
+  var modalDay = $("#modalDay");
+  var modalTitle = $("#modalTitle");
+  var modalBody = $("#modalBody");
+  var modalFoot = $("#modalFoot");
+  var soundBtn = $("#soundBtn");
+  var resetBtn = $("#resetBtn");
+  var lastFocus = null;
+  var resetArm = 0;
+
+  /* ==========================================================
+     ДАТЫ
+     ========================================================== */
+  function unlockTime(day) { return new Date(YEAR, MONTH, day, 0, 0, 0, 0).getTime(); }
+  function canOpen(day) { return UNLOCK_ALL || testMode || Date.now() >= unlockTime(day); }
+  function todayDay() {
+    var n = new Date();
+    if (n.getFullYear() !== YEAR || n.getMonth() !== MONTH) return 0;
+    return n.getDate();
+  }
+
+  /* ==========================================================
+     СНЕГ
+     ========================================================== */
+  (function snow() {
+    var canvas = $("#snow");
+    if (!canvas) return;
+    var ctx = canvas.getContext("2d");
+    var flakes = [], W = 0, H = 0, DPR = 1, raf = null, running = false;
+
+    function size() {
+      var r = canvas.parentNode.getBoundingClientRect();
+      W = Math.max(1, r.width);
+      H = Math.max(1, r.height);
+      DPR = Math.min(window.devicePixelRatio || 1, 2);
+      canvas.width = Math.round(W * DPR);
+      canvas.height = Math.round(H * DPR);
+      ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+      build();
+    }
+
+    function build() {
+      var mobile = W < 861;
+      var count = Math.round(clamp(W / (mobile ? 24 : 14), mobile ? 16 : 38, mobile ? 38 : 120));
+      flakes = [];
+      for (var i = 0; i < count; i++) {
+        flakes.push({
+          x: Math.random() * W,
+          y: Math.random() * H,
+          r: Math.random() * (mobile ? 1.4 : 1.9) + 0.5,
+          vy: Math.random() * 0.3 + 0.12,
+          vx: (Math.random() - 0.5) * 0.2,
+          a: Math.random() * 0.42 + 0.18,
+          ph: Math.random() * Math.PI * 2,
+          sp: Math.random() * 0.6 + 0.4
+        });
+      }
+    }
+
+    function paint() {
+      ctx.clearRect(0, 0, W, H);
+      for (var i = 0; i < flakes.length; i++) {
+        var f = flakes[i];
+        ctx.beginPath();
+        ctx.arc(f.x, f.y, f.r, 0, Math.PI * 2);
+        ctx.fillStyle = "rgba(255,255,255," + f.a + ")";
+        ctx.fill();
+      }
+    }
+
+    var last = 0;
+    function frame(now) {
+      if (!last) last = now;
+      var dt = Math.min(50, now - last) / 16.67;
+      last = now;
+      ctx.clearRect(0, 0, W, H);
+      for (var i = 0; i < flakes.length; i++) {
+        var f = flakes[i];
+        f.y += f.vy * dt;
+        f.x += (f.vx + Math.sin(now / 2600 + f.ph) * 0.2 * f.sp) * dt;
+        if (f.y > H + 8) { f.y = -8; f.x = Math.random() * W; }
+        if (f.x < -12) f.x = W + 12;
+        if (f.x > W + 12) f.x = -12;
+        ctx.beginPath();
+        ctx.arc(f.x, f.y, f.r, 0, Math.PI * 2);
+        ctx.fillStyle = "rgba(255,255,255," + f.a + ")";
+        ctx.fill();
+      }
+      raf = window.requestAnimationFrame(frame);
+    }
+
+    function start() { if (!running) { running = true; last = 0; raf = window.requestAnimationFrame(frame); } }
+    function stop() { running = false; if (raf) window.cancelAnimationFrame(raf); raf = null; }
+
+    size();
+    window.addEventListener("resize", size);
+
+    if (reduceMotion) paint();
+    else {
+      start();
+      document.addEventListener("visibilitychange", function () {
+        if (document.hidden) stop(); else start();
+      });
+    }
+  })();
+
+  /* ==========================================================
+     ЗВЁЗДЫ
+     ========================================================== */
+  (function stars() {
+    var box = $("#stars");
+    if (!box) return;
+    var rnd = mulberry(20261224);
+    var n = window.innerWidth < 861 ? 44 : 86;
+    var html = "";
+    for (var i = 0; i < n; i++) {
+      var size = rnd() > 0.88 ? 2.6 : rnd() > 0.5 ? 2 : 1.5;
+      html += '<span class="' + (size > 2.4 ? "big" : "") + '" style="'
+        + "left:" + (rnd() * 100).toFixed(2) + "%;"
+        + "top:" + (rnd() * 58).toFixed(2) + "%;"
+        + "width:" + size + "px;height:" + size + "px;"
+        + "--t:" + (3 + rnd() * 6).toFixed(2) + "s;"
+        + "--dl:" + (-rnd() * 8).toFixed(2) + "s;"
+        + "opacity:" + (0.2 + rnd() * 0.7).toFixed(2)
+        + '"></span>';
+    }
+    box.innerHTML = html;
+  })();
+
+  /* ==========================================================
+     ЛЕС
+     ========================================================== */
+  function forestSVG(seedNum, color, trees, height, color2) {
+    var rnd = mulberry(seedNum);
+    var parts = [];
+
+    function fir(x, h, col, op) {
+      var w = h * (0.3 + rnd() * 0.12);
+      parts.push('<path d="M' + x + " " + height +
+        " L" + (x + w * 0.5) + " " + (height - h) +
+        " L" + (x + w) + " " + height + ' Z" fill="' + col + '" opacity="' + op + '"/>');
+      parts.push('<path d="M' + (x + w * 0.22) + " " + (height - h * 0.42) +
+        " L" + (x + w * 0.5) + " " + (height - h * 1.02) +
+        " L" + (x + w * 0.78) + " " + (height - h * 0.42) + ' Z" fill="' + col + '" opacity="' + op + '"/>');
+    }
+
+    for (var i = 0; i < trees; i++) {
+      var x = (i + rnd() * 0.9) * (1600 / trees) - 40;
+      fir(x, height * (0.28 + rnd() * 0.42), color, (0.5 + rnd() * 0.4).toFixed(2));
+    }
+    if (color2) {
+      var front = Math.round(trees * 0.66);
+      for (var j = 0; j < front; j++) {
+        var x2 = (j + rnd() * 0.9) * (1600 / front) - 30;
+        fir(x2, height * (0.46 + rnd() * 0.55), color2, (0.75 + rnd() * 0.25).toFixed(2));
+      }
+    }
+    return '<svg viewBox="0 0 1600 ' + height + '" preserveAspectRatio="xMidYMax slice" xmlns="http://www.w3.org/2000/svg">'
+      + parts.join("") + "</svg>";
+  }
+
+  (function forest() {
+    var far = $("#forestFar");
+    var mid = $("#forestMid");
+    if (far) far.innerHTML = forestSVG(11, "#1c3a63", 40, 320, "#142c4e");
+    if (mid) mid.innerHTML = forestSVG(29, "#0b1d35", 30, 280, "#061120");
+  })();
+
+  /* ==========================================================
+     ЁЛКА
+     ========================================================== */
+  (function tree() {
+    var host = $("#tree");
+    if (!host) return;
+
+    var cx = 320, W = 640, H = 900;
+    var T = [
+      { top: 150, base: 268, hw: 62 },
+      { top: 206, base: 352, hw: 94 },
+      { top: 268, base: 442, hw: 128 },
+      { top: 336, base: 538, hw: 164 },
+      { top: 410, base: 640, hw: 204 },
+      { top: 492, base: 748, hw: 246 },
+      { top: 582, base: 862, hw: 290 }
+    ];
+
+    function tierPath(t) {
+      var hw = t.hw, top = t.top, base = t.base;
+      var n = Math.max(10, Math.round(hw / 18));
+      var step = (hw * 2) / n;
+      var d = "M" + (cx - hw) + " " + base + " L" + cx + " " + top + " L" + (cx + hw) + " " + base;
+      for (var i = 1; i <= n; i++) {
+        var x1 = cx + hw - step * (i - 1);
+        var x0 = cx + hw - step * i;
+        d += " Q " + ((x0 + x1) / 2).toFixed(1) + " " + (base + 20) + " " + x0.toFixed(1) + " " + base;
+      }
+      return d + " Z";
+    }
+
+    function scallop(t) {
+      var hw = t.hw, base = t.base;
+      var n = Math.max(10, Math.round(hw / 18));
+      var step = (hw * 2) / n;
+      var d = "M" + (cx - hw) + " " + base;
+      for (var i = 1; i <= n; i++) {
+        var x1 = cx - hw + step * (i - 1);
+        var x0 = cx - hw + step * i;
+        d += " Q " + ((x0 + x1) / 2).toFixed(1) + " " + (base + 20) + " " + x0.toFixed(1) + " " + base;
+      }
+      return d;
+    }
+
+    var rnd = mulberry(202612);
+    var out = [];
+    out.push('<svg viewBox="0 0 ' + W + ' ' + H + '" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">');
+    out.push('<defs>'
+      + '<linearGradient id="tg" x1="0" y1="0" x2="0" y2="1">'
+      + '<stop offset="0" stop-color="#1a5340"/><stop offset=".45" stop-color="#113a2c"/><stop offset="1" stop-color="#08201a"/>'
+      + '</linearGradient>'
+      + '<radialGradient id="warm" cx="50%" cy="72%" r="62%">'
+      + '<stop offset="0" stop-color="#f0c879" stop-opacity=".34"/><stop offset=".45" stop-color="#c98f3f" stop-opacity=".1"/><stop offset="1" stop-color="#000" stop-opacity="0"/>'
+      + '</radialGradient>'
+      + '<radialGradient id="halo"><stop offset="0" stop-color="#fff3c8" stop-opacity=".5"/><stop offset="1" stop-color="#fff3c8" stop-opacity="0"/></radialGradient>'
+      + '<linearGradient id="starG" x1="0" y1="0" x2="1" y2="1">'
+      + '<stop offset="0" stop-color="#fff8d8"/><stop offset=".45" stop-color="#f3d78e"/><stop offset="1" stop-color="#c99b34"/>'
+      + '</linearGradient>'
+      + '<filter id="soft" x="-80%" y="-80%" width="260%" height="260%"><feGaussianBlur stdDeviation="5"/></filter>'
+      + '<clipPath id="treeClip">' + T.map(function (t) { return '<path d="' + tierPath(t) + '"/>'; }).join("") + '</clipPath>'
+      + '</defs>');
+
+    out.push('<ellipse cx="320" cy="420" rx="270" ry="320" fill="url(#halo)" opacity=".2"/>');
+    out.push('<path d="M296 850 L344 850 L354 896 L286 896 Z" fill="#2b1a12"/>');
+
+    T.forEach(function (t) {
+      out.push('<path d="' + tierPath(t) + '" fill="url(#tg)"/>');
+      out.push('<path d="' + scallop(t) + '" fill="none" stroke="#dcecff" stroke-opacity=".42" stroke-width="2.4" stroke-linecap="round"/>');
+      out.push('<path d="' + scallop(t) + '" fill="none" stroke="#eaf4ff" stroke-opacity=".14" stroke-width="7" stroke-linecap="round" filter="url(#soft)"/>');
+    });
+
+    out.push('<rect x="0" y="0" width="' + W + '" height="' + H + '" fill="url(#warm)" clip-path="url(#treeClip)"/>');
+
+    /* снег на ветках */
+    for (var s = 0; s < 34; s++) {
+      var ti = 1 + Math.floor(rnd() * 6);
+      var t = T[ti];
+      var px = cx + (rnd() * 2 - 1) * t.hw * 0.92;
+      var py = t.base + 4 - rnd() * 8;
+      out.push('<ellipse cx="' + px.toFixed(1) + '" cy="' + py.toFixed(1) + '" rx="' + (2.5 + rnd() * 6).toFixed(1) + '" ry="' + (1.2 + rnd() * 2).toFixed(1) + '" fill="#eff7ff" opacity="' + (0.4 + rnd() * 0.4).toFixed(2) + '"/>');
+    }
+
+    /* спиральные гирлянды */
+    var colors = ["#ffe3a0", "#ffcf7a", "#fff3cf", "#ffb87a", "#a8e6d0"];
+    for (var g = 0; g < 3; g++) {
+      var phase = g * 2.1;
+      for (var y = 210; y < 840; y += 17) {
+        var hwHere = 290 * (y - 150) / (862 - 150);
+        var x = cx + Math.cos(y * 0.033 + phase) * hwHere * 0.82;
+        var yy = y + Math.sin(y * 0.05 + phase) * 5;
+        if (Math.abs(x - cx) > hwHere * 0.95) continue;
+        var col = colors[(g + Math.round(y / 40)) % colors.length];
+        out.push('<circle cx="' + x.toFixed(1) + '" cy="' + yy.toFixed(1) + '" r="11" fill="' + col + '" opacity=".3" filter="url(#soft)"/>');
+        out.push('<circle class="tw" style="--d:' + (-rnd() * 4).toFixed(2) + 's" cx="' + x.toFixed(1) + '" cy="' + yy.toFixed(1) + '" r="' + (2.2 + rnd() * 1.5).toFixed(1) + '" fill="' + col + '"/>');
+      }
+    }
+
+    /* шары */
+    var ballCols = ["#e8c877", "#e9eef7", "#cf3b52", "#63a9e6", "#a074e0", "#3fbf95"];
+    for (var b = 0; b < 30; b++) {
+      var by = 250 + rnd() * 560;
+      var bh = 290 * (by - 150) / 712 * 0.72;
+      var bx = cx + (rnd() * 2 - 1) * bh;
+      var br = 4.4 + rnd() * 4.2;
+      var bc = ballCols[Math.floor(rnd() * ballCols.length)];
+      out.push('<circle cx="' + (bx - br * 0.3).toFixed(1) + '" cy="' + (by + 1).toFixed(1) + '" r="' + br.toFixed(1) + '" fill="#000" opacity=".25"/>');
+      out.push('<circle cx="' + bx.toFixed(1) + '" cy="' + by.toFixed(1) + '" r="' + br.toFixed(1) + '" fill="' + bc + '"/>');
+      out.push('<circle cx="' + (bx - br * 0.32).toFixed(1) + '" cy="' + (by - br * 0.34).toFixed(1) + '" r="' + (br * 0.3).toFixed(1) + '" fill="#fff" opacity=".6"/>');
+      out.push('<circle cx="' + bx.toFixed(1) + '" cy="' + by.toFixed(1) + '" r="' + (br * 2.1).toFixed(1) + '" fill="' + bc + '" opacity=".1" filter="url(#soft)"/>');
+    }
+
+    /* звезда */
+    var pts = [];
+    for (var k = 0; k < 10; k++) {
+      var ang = -Math.PI / 2 + k * Math.PI / 5;
+      var rr = k % 2 === 0 ? 36 : 15;
+      pts.push((cx + Math.cos(ang) * rr).toFixed(1) + "," + (108 + Math.sin(ang) * rr).toFixed(1));
+    }
+    out.push('<circle cx="320" cy="108" r="64" fill="#ffe6a8" opacity=".2" filter="url(#soft)"/>');
+    out.push('<polygon points="' + pts.join(" ") + '" fill="url(#starG)"/>');
+    out.push('<circle cx="312" cy="100" r="4" fill="#fffdf2" opacity=".9"/>');
+
+    out.push("</svg>");
+    host.innerHTML = out.join("");
+  })();
+
+  /* ==========================================================
+     ПОДАРКИ
+     ========================================================== */
+  var BOW_SVG = '<svg viewBox="0 0 100 80" xmlns="http://www.w3.org/2000/svg">' +
+    '<ellipse cx="50" cy="35" rx="24" ry="8" fill="rgba(0,0,0,.22)"/>' +
+    '<g stroke="rgba(0,0,0,.28)" stroke-width="1.1" stroke-linejoin="round">' +
+      '<path d="M50 32C37 16 15 17 14 30c-1 12 18 15 36 2Z" fill="currentColor"/>' +
+      '<path d="M50 32c13-16 35-15 36-2 1 12-18 15-36 2Z" fill="currentColor"/>' +
+      '<path d="M45 36 36 72l11-5 3-28Z" fill="currentColor"/>' +
+      '<path d="M55 36l9 36-11-5-3-28Z" fill="currentColor"/>' +
+    "</g>" +
+    '<g fill="rgba(0,0,0,.16)">' +
+      '<path d="M50 32C37 16 15 17 14 30c6 6 20 8 36 2Z"/>' +
+      '<path d="M50 32c13-16 35-15 36-2-6 6-20 8-36 2Z"/>' +
+    "</g>" +
+    '<g fill="rgba(255,255,255,.22)">' +
+      '<ellipse cx="27" cy="24" rx="8" ry="2.6" transform="rotate(-16 27 24)"/>' +
+      '<ellipse cx="73" cy="24" rx="8" ry="2.6" transform="rotate(16 73 24)"/>' +
+    "</g>" +
+    '<ellipse cx="50" cy="32" rx="8" ry="7" fill="currentColor" stroke="rgba(0,0,0,.3)" stroke-width="1.1"/>' +
+    '<ellipse cx="47.5" cy="29.5" rx="3" ry="2.2" fill="rgba(255,255,255,.25)"/>' +
+  "</svg>";
+
+  var LOCK_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">' +
+    '<rect x="5" y="10.5" width="14" height="10" rx="2.5"/>' +
+    '<path d="M8.5 10.5V7.6a3.5 3.5 0 0 1 7 0v2.9"/>' +
+  "</svg>";
+
+  var SPRIG_SVG = '<svg viewBox="0 0 40 44" xmlns="http://www.w3.org/2000/svg">' +
+    '<path d="M20 40C18 28 14 18 8 8" stroke="#2f5a3d" stroke-width="2" fill="none" stroke-linecap="round"/>' +
+    '<path d="M8 8 2 6M8 8l2-6M12 15l-7-2M12 15l1-7M16 23l-7-2M16 23l1-7M20 31l-7-2M20 31l1-7" stroke="#3d7150" stroke-width="1.5" stroke-linecap="round"/>' +
+    '<rect x="23" y="20" width="4" height="15" rx="2" fill="#8a5a30" transform="rotate(16 25 27)"/>' +
+  "</svg>";
+
+  var PAPERS = [
+    { p: "#26344f", r: "#dcc9a0", ink: "#f4ead3" },
+    { p: "#2c4a40", r: "#e2d3b4", ink: "#f2ecdc" },
+    { p: "#5a2b34", r: "#d9c39c", ink: "#f6e9d6" },
+    { p: "#443250", r: "#d8cbdb", ink: "#f3e9ef" },
+    { p: "#38424f", r: "#ddcba6", ink: "#f2ecdd" },
+    { p: "#ded3bc", r: "#9c4a3c", ink: "#3a3124" },
+    { p: "#23414b", r: "#d6c6a4", ink: "#eef0e8" },
+    { p: "#5f3a2c", r: "#e3d2b2", ink: "#f6ead6" }
+  ];
+
+  var PATTERNS = [
+    "",
+    "repeating-linear-gradient(90deg, rgba(255,255,255,.055) 0 1px, transparent 1px 10px)",
+    "repeating-linear-gradient(45deg, rgba(255,255,255,.05) 0 2px, transparent 2px 13px)",
+    ""
+  ];
+
+  function shapeFor(day) {
+    if (day === 14 || day === 31) return "round";
+    if (day === 25) return "hex";
+    if (day % 5 === 3) return "tall";
+    if (day % 5 === 1) return "wide";
+    return "";
+  }
+
+  function layoutGifts() {
+    var rnd = mulberry(20261201);
+    var rows = [
+      { n: 9,  y: 69,   x0: 13, x1: 87, w: 84,  z: 10 },
+      { n: 10, y: 77.5, x0: 9,  x1: 91, w: 104, z: 20 },
+      { n: 12, y: 86,   x0: 7,  x1: 93, w: 122, z: 30 }
+    ];
+    var out = [];
+    var day = 1;
+
+    rows.forEach(function (row, ri) {
+      for (var i = 0; i < row.n; i++) {
+        var t = row.n === 1 ? 0.5 : i / (row.n - 1);
+        var shape = shapeFor(day);
+        var x = row.x0 + (row.x1 - row.x0) * t + (rnd() - 0.5) * 1.8;
+        var y = row.y + (rnd() - 0.5) * 2.4;
+        var w = row.w * (0.88 + rnd() * 0.24);
+        var h = w * 0.72;
+
+        if (shape === "tall") { w *= 0.7; h = w * 1.55; }
+        else if (shape === "wide") { w *= 1.14; h = w * 0.54; }
+        else if (shape === "round") { w *= 0.9; h = w * 1.0; }
+        else if (shape === "hex") { w *= 0.92; h = w * 0.92; }
+
+        out.push({
+          day: day++,
+          row: ri,
+          shape: shape,
+          x: clamp(x, 4, 96),
+          y: y,
+          w: w,
+          h: h,
+          r: (rnd() * 2 - 1) * 8,
+          z: row.z + i
+        });
+      }
+    });
+    return out;
+  }
+
+  var giftEls = [];
+
+  (function buildGifts() {
+    if (!giftsLayer) return;
+    var layout = layoutGifts();
+    var frag = document.createDocumentFragment();
+
+    layout.forEach(function (g) {
+      var day = g.day;
+      var paper = PAPERS[(day * 5 + g.row) % PAPERS.length];
+      var pat = PATTERNS[(day * 3 + g.row) % PATTERNS.length];
+
+      var el = document.createElement("button");
+      el.type = "button";
+      el.className = "gift" + (g.shape ? " shape-" + g.shape : "");
+      el.dataset.day = day;
+      el.dataset.row = g.row;
+      el.style.cssText =
+        "--x:" + g.x.toFixed(2) +
+        ";--y:" + g.y.toFixed(2) +
+        ";--w:" + g.w.toFixed(1) +
+        ";--h:" + g.h.toFixed(1) +
+        ";--r:" + g.r.toFixed(2) + "deg" +
+        ";--z:" + g.z +
+        ";--paper:" + paper.p +
+        ";--ink:" + paper.ink +
+        ";--rib:" + paper.r +
+        (pat ? ";--pat:" + pat : "");
+
+      var special = (g.shape === "round" || g.shape === "hex");
+      var sprig = (day === 5 || day === 12 || day === 20 || day === 27);
+
+      el.innerHTML =
+        '<span class="g-shadow"></span>' +
+        '<span class="g-card">' +
+          '<span class="g-wrap"><span class="g-v"></span><span class="g-h"></span></span>' +
+          '<span class="g-bow" aria-hidden="true">' + BOW_SVG + "</span>" +
+          '<span class="g-num">' + pad(day) + "</span>" +
+          '<span class="g-lock" aria-hidden="true">' + LOCK_SVG + "</span>" +
+          '<span class="g-check">✓</span>' +
+        "</span>" +
+        (special ? '<span class="g-tag">' + pad(day) + "</span>" : "") +
+        (sprig ? '<span class="g-sprig">' + SPRIG_SVG + "</span>" : "") +
+        '<span class="g-drift"></span>';
+
+      frag.appendChild(el);
+      giftEls.push(el);
+    });
+
+    giftsLayer.appendChild(frag);
+  })();
+
+  /* ==========================================================
+     ПРОГРЕСС / СОСТОЯНИЯ
+     ========================================================== */
+  function refresh() {
+    giftEls.forEach(function (el) {
+      var day = parseInt(el.dataset.day, 10);
+      var isOpen = opened.has(day);
+      var locked = !canOpen(day);
+      var isToday = day === todayDay() && !isOpen && !locked;
+
+      el.classList.toggle("state-locked", locked && !isOpen);
+      el.classList.toggle("state-opened", isOpen);
+      el.classList.toggle("state-today", isToday);
+
+      el.setAttribute("aria-label", isOpen
+        ? "Подарок " + day + ", уже открыт. Открыть снова"
+        : locked
+          ? "Подарок " + day + ", откроется " + day + " декабря"
+          : "Открыть подарок " + day);
+      el.setAttribute("aria-expanded", isOpen ? "true" : "false");
+    });
+
+    if (barEl) barEl.style.width = (opened.size / TOTAL * 100).toFixed(2) + "%";
+    if (plabelEl) plabelEl.textContent = opened.size + " / " + TOTAL;
+
+    if (soundBtn) {
+      soundBtn.textContent = soundOn ? "♪" : "✕";
+      soundBtn.setAttribute("aria-pressed", soundOn ? "true" : "false");
+      soundBtn.setAttribute("aria-label", soundOn ? "Выключить звук" : "Включить звук");
+    }
+
+    if (hintEl) {
+      if (testMode) hintEl.innerHTML = "тестовый режим: <b>все подарки открыты</b>";
+      else if (UNLOCK_ALL) hintEl.innerHTML = "все подарки открыты — <b>выбирай любой</b>";
+      else if (opened.size === TOTAL) hintEl.innerHTML = "все 31 подарок открыт — <b>с Новым годом!</b>";
+      else hintEl.innerHTML = "нажми на подарок — внутри сюрприз";
+    }
+
+    document.body.classList.toggle("is-test", testMode);
+  }
+
+  /* ==========================================================
+     СЧЁТЧИК
+     ========================================================== */
+  function tick() {
+    if (!countdownEl) return;
+    var target = new Date(YEAR, MONTH, 1, 0, 0, 0, 0).getTime();
+    var diff = target - Date.now();
+
+    if (testMode) { countdownEl.textContent = "тест-режим · всё открыто"; return; }
+    if (UNLOCK_ALL) { countdownEl.textContent = "все подарки открыты"; return; }
+    if (diff > 0) {
+      countdownEl.textContent = "до 1 декабря — " + Math.ceil(diff / 86400000) + " дн.";
+      return;
+    }
+    var d = todayDay();
+    if (d) countdownEl.textContent = "день " + d + " из " + TOTAL;
+    else if (new Date().getFullYear() === YEAR && new Date().getMonth() === MONTH) countdownEl.textContent = "декабрь идёт";
+    else countdownEl.textContent = "календарь пройден";
+  }
+
+  /* ==========================================================
+     ЗВУК
+     ========================================================== */
+  var actx = null;
+  function chime() {
+    if (!soundOn) return;
+    try {
+      var Ctx = window.AudioContext || window.webkitAudioContext;
+      if (!Ctx) return;
+      if (!actx) actx = new Ctx();
+      if (actx.state === "suspended" && actx.resume) actx.resume();
+      var t0 = actx.currentTime + 0.02;
+      [1046.5, 1318.5, 1567.98].forEach(function (f, i) {
+        var osc = actx.createOscillator();
+        var gain = actx.createGain();
+        osc.type = "sine";
+        osc.frequency.value = f;
+        var t = t0 + i * 0.08;
+        gain.gain.setValueAtTime(0.0001, t);
+        gain.gain.exponentialRampToValueAtTime(0.06, t + 0.02);
+        gain.gain.exponentialRampToValueAtTime(0.0001, t + 1.3);
+        osc.connect(gain);
+        gain.connect(actx.destination);
+        osc.start(t);
+        osc.stop(t + 1.4);
+      });
+    } catch (e) {}
+  }
+
+  /* ==========================================================
+     ТОСТ
+     ========================================================== */
+  var toastTimer = null;
+  function toast(msg) {
+    if (!toastEl) return;
+    toastEl.textContent = msg;
+    toastEl.classList.add("is-shown");
+    if (toastTimer) window.clearTimeout(toastTimer);
+    toastTimer = window.setTimeout(function () { toastEl.classList.remove("is-shown"); }, 2800);
+  }
+
+  /* ==========================================================
+     ИСКРЫ
+     ========================================================== */
+  function sparkle(el, count) {
+    var frag = document.createDocumentFragment();
+    for (var i = 0; i < count; i++) {
+      var s = document.createElement("i");
+      s.className = "spark";
+      s.style.setProperty("--a", (i * (360 / count) + Math.random() * 18).toFixed(1) + "deg");
+      s.style.setProperty("--r", (26 + Math.random() * 48).toFixed(1) + "px");
+      s.style.setProperty("--t", (0.55 + Math.random() * 0.45).toFixed(2) + "s");
+      frag.appendChild(s);
+    }
+    el.appendChild(frag);
+    window.setTimeout(function () {
+      $$(".spark", el).forEach(function (n) { n.remove(); });
+    }, 1300);
+  }
+
+  /* ==========================================================
+     МОДАЛКА
+     ========================================================== */
+  function bodyHTML(day, item) {
+    if (item.type === "riddle") {
+      return '<p class="m-q">' + item.q + "</p>"
+        + '<button class="m-reveal" type="button" data-reveal>показать ответ</button>'
+        + '<p class="m-a">' + item.a + "</p>";
+    }
+    if (item.type === "image") {
+      return '<figure class="m-figure">'
+        + '<img src="' + item.img + '" alt="' + item.title + '" loading="lazy"'
+        + ' onerror="this.closest(\'.m-figure\').classList.add(\'is-missing\');this.remove()">'
+        + '<div class="ph"><span class="ph-icon">🖼️</span>'
+        + "<span>Здесь будет фото</span>"
+        + "<code>" + item.img + "</code>"
+        + "<span>положи картинку рядом с файлом календаря</span></div>"
+        + "</figure>"
+        + '<p class="m-caption">' + item.caption + "</p>";
+    }
+    return item.text.split("\n").filter(Boolean).map(function (line) {
+      return '<p class="m-text">' + line + "</p>";
+    }).join("");
+  }
+
+  function openModal(day) {
+    var item = CONTENT[day - 1];
+    if (!item) return;
+
+    lastFocus = document.activeElement;
+    modalDay.textContent = "день " + day + " · " + day + " декабря";
+    modalTitle.textContent = item.title;
+    modalBody.innerHTML = bodyHTML(day, item);
+    modalFoot.textContent = "подарок " + pad(day) + " / " + TOTAL;
+
+    modal.classList.add("is-open");
+    modal.setAttribute("aria-hidden", "false");
+    document.body.classList.add("modal-open");
+    modalCard.scrollTop = 0;
+    window.setTimeout(function () { modalClose.focus(); }, 60);
+  }
+
+  function closeModal() {
+    if (!modal.classList.contains("is-open")) return;
+    modal.classList.remove("is-open");
+    modal.setAttribute("aria-hidden", "true");
+    document.body.classList.remove("modal-open");
+    if (lastFocus && lastFocus.focus) lastFocus.focus();
+  }
+
+  modalBody && modalBody.addEventListener("click", function (e) {
+    var btn = e.target.closest("[data-reveal]");
+    if (!btn) return;
+    var ans = btn.nextElementSibling;
+    if (ans) ans.classList.add("is-shown");
+    btn.remove();
+  });
+
+  modalClose && modalClose.addEventListener("click", closeModal);
+  modal && modal.addEventListener("click", function (e) {
+    if (e.target.hasAttribute("data-close")) closeModal();
+  });
+
+  document.addEventListener("keydown", function (e) {
+    if (e.key === "Escape") { closeModal(); return; }
+    if (e.key !== "Tab" || !modal.classList.contains("is-open")) return;
+    var focusables = $$('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])', modal)
+      .filter(function (el) { return el.offsetParent !== null; });
+    if (!focusables.length) return;
+    var first = focusables[0];
+    var last = focusables[focusables.length - 1];
+    if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+    else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+  });
+
+  /* ==========================================================
+     ОТКРЫТИЕ
+     ========================================================== */
+  var busy = new WeakSet();
+
+  function openGift(el, day) {
+    if (busy.has(el)) return;
+    busy.add(el);
+
+    el.classList.add("is-opening");
+    opened.add(day);
+    writeStore(KEY_OPENED, JSON.stringify(Array.from(opened).sort(function (a, b) { return a - b; })));
+    chime();
+    sparkle(el, 14);
+
+    var wait = reduceMotion ? 60 : 760;
+    window.setTimeout(function () {
+      el.classList.remove("is-opening");
+      busy.delete(el);
+      refresh();
+      openModal(day);
+    }, wait);
+  }
+
+  giftsLayer && giftsLayer.addEventListener("click", function (e) {
+    var el = e.target.closest(".gift");
+    if (!el) return;
+    var day = parseInt(el.dataset.day, 10);
+    if (!day) return;
+
+    if (opened.has(day)) { openModal(day); return; }
+
+    if (!canOpen(day)) {
+      el.classList.remove("shake");
+      void el.offsetWidth;
+      el.classList.add("shake");
+      window.setTimeout(function () { el.classList.remove("shake"); }, 560);
+      toast("Подарок №" + day + " откроется " + day + " декабря");
+      return;
+    }
+    openGift(el, day);
+  });
+
+  /* ==========================================================
+     КНОПКИ
+     ========================================================== */
+  soundBtn && soundBtn.addEventListener("click", function () {
+    soundOn = !soundOn;
+    writeStore(KEY_SOUND, soundOn ? "on" : "off");
+    refresh();
+    if (soundOn) chime();
+    toast(soundOn ? "Звук включён" : "Звук выключен");
+  });
+
+  resetBtn && resetBtn.addEventListener("click", function () {
+    if (opened.size === 0) { toast("Пока нечего сбрасывать"); return; }
+    var now = Date.now();
+    if (now - resetArm > 3200) {
+      resetArm = now;
+      toast("Нажми ещё раз, чтобы закрыть все подарки");
+      return;
+    }
+    resetArm = 0;
+    opened.clear();
+    writeStore(KEY_OPENED, "[]");
+    refresh();
+    toast("Все подарки снова закрыты");
+  });
+
+  /* ==========================================================
+     ПАРАЛЛАКС
+     ========================================================== */
+  (function parallax() {
+    if (reduceMotion || !canHover || !stage) return;
+    var tx = 0, ty = 0, cx = 0, cy = 0, raf = null;
+
+    function apply() {
+      cx += (tx - cx) * 0.07;
+      cy += (ty - cy) * 0.07;
+      stage.style.setProperty("--px", cx.toFixed(4));
+      stage.style.setProperty("--py", cy.toFixed(4));
+      raf = (Math.abs(tx - cx) > 0.001 || Math.abs(ty - cy) > 0.001) ? window.requestAnimationFrame(apply) : null;
+    }
+
+    stage.addEventListener("pointermove", function (e) {
+      var r = stage.getBoundingClientRect();
+      tx = ((e.clientX - r.left) / r.width - 0.5) * 2;
+      ty = ((e.clientY - r.top) / r.height - 0.5) * 2;
+      if (!raf) raf = window.requestAnimationFrame(apply);
+    }, { passive: true });
+
+    stage.addEventListener("pointerleave", function () {
+      tx = 0; ty = 0;
+      if (!raf) raf = window.requestAnimationFrame(apply);
+    });
+  })();
+
+  /* ==========================================================
+     СТАРТ
+     ========================================================== */
+  function fitStage() {
+    if (!stage) return;
+    var u = Math.max(0.74, Math.min(1.2, window.innerHeight / 900));
+    stage.style.setProperty("--u", u.toFixed(3));
+  }
+  fitStage();
+  window.addEventListener("resize", fitStage);
+
+  refresh();
+  tick();
+  window.setInterval(tick, 15000);
+  window.setInterval(refresh, 60000);
+
+  window.addEventListener("hashchange", function () {
+    testMode = /(^|[#&?])test\b/i.test(window.location.hash);
+    refresh();
+    tick();
+  });
+
+  if (UNLOCK_ALL) {
+    var tagEl = document.getElementById("tagline");
+    if (tagEl) tagEl.textContent = "Тридцать один подарок в заснеженном лесу. Все подарки открыты — выбирай любой.";
+  }
+  if (testMode) {
+    window.setTimeout(function () { toast("Тестовый режим: все подарки открыты"); }, 700);
+  }
+})();
+</script>
+</body>
+</html>
